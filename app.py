@@ -88,6 +88,17 @@ def getFile(filename):
         return send_from_directory('./uploads', filename)
     abort(405)
 
+@app.route('/api/delete/id/<id>', methods=['GET'])
+@cross_origin()
+def del_file(id):
+    if request.method == 'GET':
+        con = sql.connect('database.db')
+        cur = con.cursor()
+        cur.execute('DELETE FROM elektra_reg WHERE id = ?', (id,))
+        con.commit()
+        con.close()
+        return {'message' : 'success'}
+    abort(405)
 
 if __name__ == "__main__":
     app.run()
