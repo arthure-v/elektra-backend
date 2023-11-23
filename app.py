@@ -4,9 +4,11 @@ import sqlite3 as sql
 import uuid as uid
 import pandas as pd
 import datetime as dt
+from loguru import logger   
 
 con = sql.connect('database.db')
 api = 'https://api-elektra.ieeesbcemunnar.org/api/file/'
+logger.info('Connected DB\n')
 cur = con.cursor()
 cur.execute('''
     CREATE TABLE IF NOT EXISTS elektra_reg (
@@ -23,15 +25,17 @@ cur.execute('''
     ieee_id TEXT,
     payment TEXT)'''
 )
+logger.info('Created DB\n')
 con.commit()
 
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
+app.config['DEBUG'] = True
 def handleForm(data):
     try:
+        logger.info('Handling Input\n')
         con = sql.connect('database.db')
         data = request.files['file-upload']
         ext = data.filename.split('.')[-1]
@@ -45,16 +49,19 @@ def handleForm(data):
         con.close()
         return True
     except Exception as e:
+        logger.error('Error : ' + str(e) + '\n')
         return False
 
 @app.route('/')
 @cross_origin()
 def home():
+    logger.info('Pinging\n')
     return {'message' : 'success'}
 
 @app.route('/api/register', methods=['POST'])
 @cross_origin()
 def saveData():
+    logger.info('pinged register\n')
     if request.method == 'POST':
         if handleForm(request):
             return {'message' : 'success'}
@@ -64,11 +71,13 @@ def saveData():
 @app.route('/api/getdata/table', methods=['GET'])
 @cross_origin()
 def getData():
+    logger.info('Excel Sheet Generate\n')
     if request.method == 'GET':
         name = "ELEKTRA REG " + str(dt.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")) + '.xlsx'
         con = sql.connect('database.db')
         df = pd.read_sql_query('SELECT * FROM elektra_reg',con)
         df.to_excel('./data/' + name, index=False)
+        logger.info('Sending Sheet\n')
         return send_from_directory('./data', name)
     abort(405)
 
