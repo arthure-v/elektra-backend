@@ -6,7 +6,7 @@ import pandas as pd
 import datetime as dt
 
 con = sql.connect('database.db')
-api = 'https://api.elektra.ieeesbcemunnar.org/api/file/'
+api = 'https://api-elektra.ieeesbcemunnar.org/api/file/'
 cur = con.cursor()
 cur.execute('''
     CREATE TABLE IF NOT EXISTS elektra_reg (
