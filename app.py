@@ -1,5 +1,5 @@
 from flask_cors import CORS, cross_origin
-from flask import Flask,request,render_template,abort,send_from_directory
+from flask import Flask,request,abort,send_from_directory
 import sqlite3 as sql
 import uuid as uid
 import pandas as pd
@@ -46,7 +46,12 @@ def handleForm(data):
         return True
     except Exception as e:
         return False
-    
+
+@app.route('/')
+@cross_origin()
+def home():
+    return {'message' : 'success'}
+
 @app.route('/api/register', methods=['POST'])
 @cross_origin()
 def saveData():
