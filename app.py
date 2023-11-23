@@ -1,10 +1,8 @@
-# pylint: skip-file
 from flask_cors import CORS, cross_origin
 from flask import Flask,request,render_template,abort,send_from_directory
 import sqlite3 as sql
 import uuid as uid
 import pandas as pd
-import os
 import datetime as dt
 
 con = sql.connect('database.db')
@@ -38,7 +36,6 @@ def handleForm(data):
         data = request.files['file-upload']
         ext = data.filename.split('.')[-1]
         name = str(uid.uuid1()) + "." + ext
-        print(api+name)
         data.save(f'./uploads/{str(name)}')
         data = dict(request.form)
         cur = con.cursor()
@@ -47,7 +44,7 @@ def handleForm(data):
         con.commit()
         con.close()
         return True
-    except:
+    except Exception as e:
         return False
     
 @app.route('/api/register', methods=['POST'])
@@ -76,6 +73,3 @@ def getFile(filename):
     if request.method == 'GET':
         return send_from_directory('./uploads', filename)
     abort(405)
-
-if __name__ == '__main__':
-    app.run(debug=True, port=8080)
