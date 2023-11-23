@@ -73,3 +73,7 @@ def getFile(filename):
     if request.method == 'GET':
         return send_from_directory('./uploads', filename)
     abort(405)
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
