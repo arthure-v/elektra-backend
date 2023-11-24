@@ -5,6 +5,8 @@ import uuid as uid
 import pandas as pd
 import datetime as dt
 from loguru import logger   
+import requests as rq
+import os
 
 con = sql.connect('database.db')
 api = 'https://api-elektra.ieeesbcemunnar.org/api/file/'
@@ -52,9 +54,21 @@ def handleForm(data):
         logger.error('Error : ' + str(e) + '\n')
         return False
 
-@app.route('/')
+@app.route('/', methods=['POST'])
 @cross_origin()
 def home():
+    print(request.files['file-upload'])
+    data = dict(request.form)
+    data = {'content' : '**Name** : ' + data['name'] + '\n**Email** : ' +data['email'] +
+    '\n**Phone** : ' + data['phone'] + '\n**Institute** : ' + data['inst'] +
+    '\n**Department** : ' + data['dept'] + '\n**Year** : ' + data['year'] +
+    '\n**WorkShop** : ' + data['wrk'] + '\n**Food** : ' + data['food'] +
+    '\n**IEEE Member** : ' + data['ieee'] + '\n**IEEE ID** : ' + data['ieee_id']}
+
+    with rq.session() as session:
+        session.post('https://discord.com/api/webhooks/1177484440683958323/Q99YXjQWTb9a60K_UodCfeJQLH8pKO5Bdom8pdJq2Wu2RLLeWE25d-AoQNzpgV8j7pED', data=data,files={request.files['file-upload'].filename : request.files['file-upload'].read()})
+        session.close()
+    return {'message' : 'success'}
     logger.info('Pinging\n')
     return {'message' : 'success'}
 
@@ -68,18 +82,23 @@ def saveData():
         return {'message' : 'failure'}
     abort(405)
 
-@app.route('/api/getdata/table', methods=['GET'])
+@app.route('/api/fetch/table/for/every/10/minute/please', methods=['GET'])
 @cross_origin()
-def getData():
-    logger.info('Excel Sheet Generate\n')
+def getDiscordData():
+    logger.info('pinged Discord data\n')
     if request.method == 'GET':
         name = "ELEKTRA REG " + str(dt.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")) + '.xlsx'
         con = sql.connect('database.db')
         df = pd.read_sql_query('SELECT * FROM elektra_reg',con)
         df.to_excel('./data/' + name, index=False)
         logger.info('Sending Sheet\n')
-        return send_from_directory('./data', name)
+        with rq.session() as session:
+            session.post('https://discord.com/api/webhooks/1177543979164774472/mJgqm5Wtp-ACVxtAdgRKt8JwGHv6cHhp29OZDFGWDRbtgfQtjC4d9eB3IYBhZq_H7-4X', files={name : open('./data/' + name, 'rb')})
+            os.remove('./data/' + name)
+            session.close()
+        return {'message' : 'failure'}
     abort(405)
+
 
 @app.route('/api/file/<filename>', methods=['GET'])
 @cross_origin()
