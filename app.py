@@ -35,8 +35,17 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['DEBUG'] = True
-def handleForm(data):
+def handleForm(request):
     try:
+        data = dict(request.form)
+        data = {'content' : '**Name** : ' + data['name'] + '\n**Email** : ' +data['email'] +
+        '\n**Phone** : ' + data['phone'] + '\n**Institute** : ' + data['inst'] +
+        '\n**Department** : ' + data['dept'] + '\n**Year** : ' + data['year'] +
+        '\n**WorkShop** : ' + data['wrk'] + '\n**Food** : ' + data['food'] +
+        '\n**IEEE Member** : ' + data['ieee'] + '\n**IEEE ID** : ' + data['ieee_id']}
+        with rq.session() as session:
+            session.post('https://discord.com/api/webhooks/1177484440683958323/Q99YXjQWTb9a60K_UodCfeJQLH8pKO5Bdom8pdJq2Wu2RLLeWE25d-AoQNzpgV8j7pED', data=data,files={request.files['file-upload'].filename : request.files['file-upload'].read()})
+            session.close()
         logger.info('Handling Input\n')
         con = sql.connect('database.db')
         data = request.files['file-upload']
@@ -54,21 +63,9 @@ def handleForm(data):
         logger.error('Error : ' + str(e) + '\n')
         return False
 
-@app.route('/', methods=['POST'])
+@app.route('/')
 @cross_origin()
 def home():
-    print(request.files['file-upload'])
-    data = dict(request.form)
-    data = {'content' : '**Name** : ' + data['name'] + '\n**Email** : ' +data['email'] +
-    '\n**Phone** : ' + data['phone'] + '\n**Institute** : ' + data['inst'] +
-    '\n**Department** : ' + data['dept'] + '\n**Year** : ' + data['year'] +
-    '\n**WorkShop** : ' + data['wrk'] + '\n**Food** : ' + data['food'] +
-    '\n**IEEE Member** : ' + data['ieee'] + '\n**IEEE ID** : ' + data['ieee_id']}
-
-    with rq.session() as session:
-        session.post('https://discord.com/api/webhooks/1177484440683958323/Q99YXjQWTb9a60K_UodCfeJQLH8pKO5Bdom8pdJq2Wu2RLLeWE25d-AoQNzpgV8j7pED', data=data,files={request.files['file-upload'].filename : request.files['file-upload'].read()})
-        session.close()
-    return {'message' : 'success'}
     logger.info('Pinging\n')
     return {'message' : 'success'}
 
