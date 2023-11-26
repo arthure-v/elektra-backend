@@ -6,3 +6,5 @@ openpyxl
 loguru
 uuid
 requests
+"pymongo[srv]"
+dnspython
