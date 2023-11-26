@@ -14,7 +14,7 @@ from pymongo.server_api import ServerApi
 
 ################## DB #######################
 
-secret = json.load(open("secret.json","r"))
+secret = json.load(open("/etc/secrets/secret.json","r"))
 client = MongoClient(secret['uri'], server_api=ServerApi('1'))
 try:
     client.admin.command('ping')
